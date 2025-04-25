@@ -7,8 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Send, Bot, User, Info } from "lucide-react"
+import { Send, Bot, User, Info, Sparkles, Trash2, RotateCcw } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useAuth } from "@/lib/auth-context"
+import { useToast } from "@/hooks/use-toast"
+import { saveChatHistory, loadChatHistory, clearChatHistory, type StoredMessage } from "@/lib/chat-storage"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 type Message = {
   id: string
@@ -28,15 +32,79 @@ export default function ChatbotPage() {
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isTyping, setIsTyping] = useState(false)
+  const [typingText, setTypingText] = useState("")
+  const [currentResponseIndex, setCurrentResponseIndex] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { user } = useAuth()
+  const { toast } = useToast()
+
+  // Load chat history when user logs in
+  useEffect(() => {
+    if (user) {
+      const storedMessages = loadChatHistory(user.id)
+      if (storedMessages && storedMessages.length > 0) {
+        const parsedMessages: Message[] = storedMessages.map((msg) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp),
+        }))
+        setMessages(parsedMessages)
+      }
+    }
+  }, [user])
+
+  // Save chat history when messages change
+  useEffect(() => {
+    if (user && messages.length > 0) {
+      const storedMessages: StoredMessage[] = messages.map((msg) => ({
+        ...msg,
+        timestamp: msg.timestamp.toISOString(),
+      }))
+      saveChatHistory(user.id, storedMessages)
+    }
+  }, [messages, user])
 
   // Scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+  }, [messages, typingText])
 
-  // Placeholder function for sending messages
-  // In a real implementation, this would connect to the Gemini API
+  // Typing animation effect
+  useEffect(() => {
+    if (isTyping && currentResponseIndex < messages[messages.length - 1].content.length) {
+      const timer = setTimeout(() => {
+        setTypingText((prev) => prev + messages[messages.length - 1].content[currentResponseIndex])
+        setCurrentResponseIndex((prev) => prev + 1)
+      }, 15) // Speed of typing
+      return () => clearTimeout(timer)
+    } else if (isTyping) {
+      setIsTyping(false)
+    }
+  }, [isTyping, currentResponseIndex, messages])
+
+  // Function to clear chat history
+  const handleClearChat = () => {
+    if (user) {
+      clearChatHistory(user.id)
+    }
+
+    setMessages([
+      {
+        id: "welcome",
+        content: "Hello! I'm the FlowWise AI assistant. How can I help you with menstrual health today?",
+        role: "assistant",
+        timestamp: new Date(),
+      },
+    ])
+
+    toast({
+      title: "Chat cleared",
+      description: "Your chat history has been cleared.",
+      variant: "success",
+    })
+  }
+
+  // Function to send messages to Gemini API
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -54,85 +122,179 @@ export default function ChatbotPage() {
     setInput("")
     setIsLoading(true)
 
-    // Simulate API delay
-    setTimeout(() => {
-      // Add assistant response (placeholder)
+    try {
+      // Call the Gemini API through our server action
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: input,
+          history: messages.map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+          })),
+          user: user
+            ? {
+                name: user.name,
+                email: user.email,
+              }
+            : null,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        console.error("API error:", data)
+        throw new Error(data.error || "Failed to get response from AI")
+      }
+
+      // Add assistant response
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: getPlaceholderResponse(userMessage.content),
+        content: data.response,
         role: "assistant",
         timestamp: new Date(),
       }
 
       setMessages((prev) => [...prev, assistantMessage])
+
+      // Start typing animation
+      setTypingText("")
+      setCurrentResponseIndex(0)
+      setIsTyping(true)
+    } catch (error) {
+      console.error("Error getting AI response:", error)
+
+      toast({
+        title: "Error",
+        description: "Failed to get a response from the AI assistant. Please try again.",
+        variant: "destructive",
+      })
+
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "I'm sorry, I encountered an error connecting to the AI service. Please try again later.",
+        role: "assistant",
+        timestamp: new Date(),
+      }
+
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 1500)
-  }
-
-  // Placeholder function to generate responses
-  // This would be replaced with actual Gemini API integration
-  const getPlaceholderResponse = (query: string): string => {
-    const lowerQuery = query.toLowerCase()
-
-    if (lowerQuery.includes("period") && lowerQuery.includes("normal")) {
-      return "A typical menstrual cycle lasts 28 days, but can range from 21 to 35 days. The period itself usually lasts 3-7 days. However, everyone's body is different, and what's normal varies from person to person."
-    } else if (lowerQuery.includes("pain") || lowerQuery.includes("cramp")) {
-      return "Menstrual cramps are common and can range from mild to severe. Some remedies include heat therapy, gentle exercise, staying hydrated, and over-the-counter pain relievers. If your pain is severe or disrupts daily activities, it's a good idea to consult a healthcare provider."
-    } else if (lowerQuery.includes("product") || lowerQuery.includes("pad") || lowerQuery.includes("tampon")) {
-      return "There are many menstrual products available, including pads, tampons, menstrual cups, period underwear, and reusable cloth pads. Each has its own benefits, and the best choice depends on your personal preference, lifestyle, and comfort level."
-    } else {
-      return "That's a great question about menstrual health. In a fully implemented version, I would connect to the Gemini AI to provide you with accurate and helpful information. Is there something specific about menstrual health you'd like to learn more about?"
     }
   }
 
   return (
     <div className="container px-4 py-12 md:py-16">
       <div className="flex flex-col items-center space-y-4 text-center mb-8">
-        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl text-pink-600 dark:text-pink-400">
-          AI Chatbot Assistant
-        </h1>
-        <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+        <div className="inline-flex items-center justify-center p-2 bg-flowwise-mint/30 dark:bg-flowwise-burgundy/20 rounded-full">
+          <Sparkles className="h-6 w-6 text-flowwise-burgundy dark:text-flowwise-pink" />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl gradient-text">AI Chatbot Assistant</h1>
+        <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
           Ask questions about menstrual health and get personalized answers
         </p>
       </div>
 
       <div className="max-w-3xl mx-auto">
-        <Alert className="mb-6 border-pink-200 dark:border-pink-900 bg-pink-50 dark:bg-pink-950/20">
-          <Info className="h-4 w-4 text-pink-600 dark:text-pink-400" />
-          <AlertTitle className="text-pink-600 dark:text-pink-400">Demo Mode</AlertTitle>
-          <AlertDescription>
-            This is a demo of the AI chatbot. In the full version, this would connect to the Gemini API for accurate
-            responses.
-          </AlertDescription>
-        </Alert>
+        {!user && (
+          <Alert className="mb-6 border-flowwise-lightPink bg-flowwise-mint/20 dark:bg-flowwise-burgundy/10 dark:border-flowwise-burgundy/30">
+            <Info className="h-4 w-4 text-flowwise-burgundy dark:text-flowwise-pink" />
+            <AlertTitle className="text-flowwise-burgundy dark:text-flowwise-pink">
+              Sign in for personalized responses
+            </AlertTitle>
+            <AlertDescription>
+              <p className="mb-2">
+                Create an account or sign in to get more personalized responses based on your profile and history.
+              </p>
+              <div className="flex gap-2 mt-2">
+                <Link href="/login">
+                  <Button variant="outline" size="sm" className="border-flowwise-pink hover:bg-flowwise-pink/10">
+                    Sign in
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-flowwise-burgundy to-flowwise-red hover:opacity-90"
+                  >
+                    Create account
+                  </Button>
+                </Link>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
-        <Card className="border-pink-100 dark:border-pink-900/50">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-pink-600 dark:text-pink-400" />
-              FlowWise AI Assistant
-            </CardTitle>
-            <CardDescription>Ask me anything about menstrual health and wellness</CardDescription>
+        <Card className="border-flowwise-lightPink/30 shadow-lg overflow-hidden">
+          <CardHeader className="pb-4 bg-gradient-to-r from-flowwise-burgundy/5 to-flowwise-pink/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8 bg-flowwise-mint dark:bg-flowwise-burgundy/30">
+                  <Bot className="h-5 w-5 text-flowwise-burgundy dark:text-flowwise-pink" />
+                  <AvatarFallback>AI</AvatarFallback>
+                </Avatar>
+                <div>
+                  <CardTitle>FlowWise AI Assistant</CardTitle>
+                  <CardDescription>Powered by Gemini AI</CardDescription>
+                </div>
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <RotateCcw className="h-4 w-4" />
+                    <span className="sr-only">Chat options</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleClearChat} className="text-red-500 focus:text-red-500">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Clear chat history
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </CardHeader>
-          <CardContent className="h-[400px] overflow-y-auto pb-0">
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+          <CardContent className="h-[500px] overflow-y-auto p-0">
+            <div className="flex flex-col p-4 space-y-4">
+              {messages.map((message, index) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                >
                   <div className={`flex gap-3 max-w-[80%] ${message.role === "user" ? "flex-row-reverse" : ""}`}>
-                    <Avatar className={message.role === "assistant" ? "bg-pink-100 dark:bg-pink-900" : ""}>
+                    <Avatar
+                      className={
+                        message.role === "assistant"
+                          ? "bg-flowwise-mint dark:bg-flowwise-burgundy/30"
+                          : "bg-flowwise-lightPink/20"
+                      }
+                    >
                       {message.role === "assistant" ? (
-                        <Bot className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                        <Bot className="h-5 w-5 text-flowwise-burgundy dark:text-flowwise-pink" />
                       ) : (
-                        <User className="h-5 w-5" />
+                        <User className="h-5 w-5 text-flowwise-burgundy dark:text-flowwise-pink" />
                       )}
                       <AvatarFallback>{message.role === "assistant" ? "AI" : "You"}</AvatarFallback>
                     </Avatar>
                     <div
                       className={`rounded-lg p-3 ${
-                        message.role === "assistant" ? "bg-muted" : "bg-pink-100 dark:bg-pink-900/50 text-foreground"
+                        message.role === "assistant"
+                          ? "bg-flowwise-mint/20 dark:bg-flowwise-burgundy/10 border border-flowwise-mint/30 dark:border-flowwise-burgundy/20"
+                          : "bg-flowwise-lightPink/20 dark:bg-flowwise-pink/10 border border-flowwise-lightPink/30 dark:border-flowwise-pink/20 text-foreground"
                       }`}
                     >
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-sm whitespace-pre-wrap">
+                        {isTyping && index === messages.length - 1 ? typingText : message.content}
+                        {isTyping && index === messages.length - 1 && (
+                          <span className="inline-block w-1.5 h-4 ml-0.5 bg-flowwise-burgundy dark:bg-flowwise-pink animate-pulse"></span>
+                        )}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {message.timestamp.toLocaleTimeString([], {
                           hour: "2-digit",
@@ -144,17 +306,19 @@ export default function ChatbotPage() {
                 </div>
               ))}
               {isLoading && (
-                <div className="flex justify-start">
+                <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
                   <div className="flex gap-3 max-w-[80%]">
-                    <Avatar className="bg-pink-100 dark:bg-pink-900">
-                      <Bot className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                    <Avatar className="bg-flowwise-mint dark:bg-flowwise-burgundy/30">
+                      <Bot className="h-5 w-5 text-flowwise-burgundy dark:text-flowwise-pink" />
                       <AvatarFallback>AI</AvatarFallback>
                     </Avatar>
-                    <div className="rounded-lg p-3 bg-muted">
-                      <div className="flex space-x-2">
-                        <div className="h-2 w-2 rounded-full bg-pink-400 animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="h-2 w-2 rounded-full bg-pink-400 animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="h-2 w-2 rounded-full bg-pink-400 animate-bounce"></div>
+                    <div className="rounded-lg p-3 bg-flowwise-mint/20 dark:bg-flowwise-burgundy/10 border border-flowwise-mint/30 dark:border-flowwise-burgundy/20">
+                      <div className="flex items-center space-x-2">
+                        <div className="typing-animation">
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -163,23 +327,37 @@ export default function ChatbotPage() {
               <div ref={messagesEndRef} />
             </div>
           </CardContent>
-          <CardFooter className="pt-4">
+          <CardFooter className="p-4 border-t border-flowwise-lightPink/20">
             <form onSubmit={handleSendMessage} className="flex w-full gap-2">
               <Input
                 placeholder="Type your question here..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                className="flex-1"
+                className="flex-1 border-flowwise-lightPink/50 focus-visible:ring-flowwise-pink"
                 disabled={isLoading}
               />
-              <Button type="submit" className="bg-pink-600 hover:bg-pink-700" disabled={isLoading || !input.trim()}>
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-flowwise-burgundy to-flowwise-red hover:opacity-90 transition-opacity"
+                disabled={isLoading || !input.trim()}
+              >
                 <Send className="h-4 w-4" />
                 <span className="sr-only">Send message</span>
               </Button>
             </form>
           </CardFooter>
         </Card>
+
+        <div className="mt-8 text-center text-sm text-muted-foreground">
+          <p>The AI assistant provides general information and is not a substitute for professional medical advice.</p>
+          <p>Always consult with a healthcare provider for medical concerns.</p>
+        </div>
       </div>
     </div>
   )
+}
+
+// Helper component for Link since we're using it in the Alert
+function Link({ href, children }: { href: string; children: React.ReactNode }) {
+  return <a href={href}>{children}</a>
 }
