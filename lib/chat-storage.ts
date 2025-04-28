@@ -14,6 +14,8 @@ export type ChatHistory = {
 
 // Save chat history to local storage
 export const saveChatHistory = (userId: string, messages: StoredMessage[]): void => {
+  if (typeof window === "undefined") return
+
   try {
     const history: ChatHistory = {
       userId,
@@ -28,6 +30,8 @@ export const saveChatHistory = (userId: string, messages: StoredMessage[]): void
 
 // Load chat history from local storage
 export const loadChatHistory = (userId: string): StoredMessage[] => {
+  if (typeof window === "undefined") return []
+
   try {
     const historyJson = localStorage.getItem(`flowwise_chat_${userId}`)
     if (!historyJson) return []
@@ -42,6 +46,8 @@ export const loadChatHistory = (userId: string): StoredMessage[] => {
 
 // Clear chat history from local storage
 export const clearChatHistory = (userId: string): void => {
+  if (typeof window === "undefined") return
+
   try {
     localStorage.removeItem(`flowwise_chat_${userId}`)
   } catch (error) {

@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BookOpen, MessageSquare, ThumbsUp, Calendar, User } from "lucide-react"
+import { BookOpen, MessageSquare, ThumbsUp, Calendar, User, PlusCircle } from "lucide-react"
 import Link from "next/link"
 
 export default function BlogPage() {
@@ -15,6 +15,14 @@ export default function BlogPage() {
         <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
           Read and share experiences, bust myths, and learn about menstrual health
         </p>
+      </div>
+
+      <div className="flex justify-center mb-8">
+        <Link href="/create-content">
+          <Button className="bg-gradient-to-r from-flowwise-burgundy to-flowwise-red hover:opacity-90 transition-opacity">
+            <PlusCircle className="mr-2 h-4 w-4" /> Create New Blog Post
+          </Button>
+        </Link>
       </div>
 
       <div className="max-w-5xl mx-auto">

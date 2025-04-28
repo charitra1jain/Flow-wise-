@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { LineChart, CalendarDays, Settings, MessageCircle, BookOpen, Activity } from "lucide-react"
 import Link from "next/link"
+// Make sure FitbitDashboard is properly imported
+import FitbitDashboard from "@/components/fitbit-dashboard"
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth()
@@ -167,6 +169,9 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Fitbit Dashboard */}
+          <FitbitDashboard />
 
           <Card className="border-flowwise-lightPink/30">
             <CardHeader>

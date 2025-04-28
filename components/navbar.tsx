@@ -40,6 +40,7 @@ export default function Navbar() {
     }
   }, [])
 
+  // Update the routes array to remove the Create link
   const routes = [
     { name: "Home", path: "/" },
     { name: "Learn", path: "/learn" },
@@ -47,6 +48,8 @@ export default function Navbar() {
     { name: "Tracker", path: "/tracker" },
     { name: "Products", path: "/products" },
     { name: "Blog", path: "/blog" },
+    // Removed the Create link
+    { name: "Test", path: "/test" },
   ]
 
   return (

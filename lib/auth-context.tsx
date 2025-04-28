@@ -27,6 +27,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check if user is logged in on mount
   useEffect(() => {
+    if (typeof window === "undefined") return
+
     const checkAuth = async () => {
       try {
         const storedUser = localStorage.getItem("flowwise_user")
@@ -45,6 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Mock login function
   const login = async (email: string, password: string) => {
+    if (typeof window === "undefined") return
+
     setIsLoading(true)
     try {
       // In a real app, this would be an API call
@@ -71,6 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Mock signup function
   const signup = async (name: string, email: string, password: string) => {
+    if (typeof window === "undefined") return
+
     setIsLoading(true)
     try {
       // In a real app, this would be an API call
@@ -97,6 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Logout function
   const logout = () => {
+    if (typeof window === "undefined") return
+
     setUser(null)
     localStorage.removeItem("flowwise_user")
     router.push("/")

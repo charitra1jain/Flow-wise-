@@ -4,9 +4,12 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/auth-context"
+import { FitbitProvider } from "@/lib/fitbit/fitbit-context"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { Toaster } from "@/components/ui/toaster"
+import { ChatProvider } from "@/components/chat-provider"
+import ChatEventListener from "@/components/chat-event-listener"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,12 +29,18 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <AuthProvider>
-            <div className="flex min-h-screen flex-col">
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <Toaster />
-            </div>
+            <FitbitProvider>
+              <ChatProvider>
+                <ChatEventListener>
+                  <div className="flex min-h-screen flex-col">
+                    <Navbar />
+                    <main className="flex-1">{children}</main>
+                    <Footer />
+                    <Toaster />
+                  </div>
+                </ChatEventListener>
+              </ChatProvider>
+            </FitbitProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -7,12 +7,18 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Send, Bot, User, Info, Sparkles, Trash2, RotateCcw } from "lucide-react"
+import { Send, Bot, User, Info, Sparkles, Trash2, RotateCcw, Activity, Calendar } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useAuth } from "@/lib/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import { saveChatHistory, loadChatHistory, clearChatHistory, type StoredMessage } from "@/lib/chat-storage"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useFitbit } from "@/lib/fitbit/fitbit-context"
+import { useFitbitData } from "@/lib/fitbit/use-fitbit-data"
+import { Badge } from "@/components/ui/badge"
+import { getMostRecentLog, getCycleStatistics } from "@/lib/tracker-service"
+import Link from "next/link"
+import { format } from "date-fns"
 
 type Message = {
   id: string
@@ -38,6 +44,20 @@ export default function ChatbotPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { user } = useAuth()
   const { toast } = useToast()
+  const { isConnected: isFitbitConnected } = useFitbit()
+  const { healthData, syncRecentData } = useFitbitData()
+  const [trackerData, setTrackerData] = useState<{
+    hasData: boolean
+    recentLog: any
+    cycleStats: any
+  }>({
+    hasData: false,
+    recentLog: null,
+    cycleStats: null,
+  })
+
+  // Add a new state for response mode
+  const [responseMode, setResponseMode] = useState<"detailed" | "concise">("detailed")
 
   // Load chat history when user logs in
   useEffect(() => {
@@ -50,6 +70,16 @@ export default function ChatbotPage() {
         }))
         setMessages(parsedMessages)
       }
+
+      // Load tracker data
+      const recentLog = getMostRecentLog(user.id)
+      const cycleStats = getCycleStatistics(user.id)
+
+      setTrackerData({
+        hasData: !!recentLog,
+        recentLog,
+        cycleStats,
+      })
     }
   }, [user])
 
@@ -104,7 +134,7 @@ export default function ChatbotPage() {
     })
   }
 
-  // Function to send messages to Gemini API
+  // Update the handleSendMessage function to include the response mode
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -123,6 +153,9 @@ export default function ChatbotPage() {
     setIsLoading(true)
 
     try {
+      // Get most recent Fitbit data if connected
+      const mostRecentData = healthData.length > 0 ? healthData[0] : null
+
       // Call the Gemini API through our server action
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -137,10 +170,13 @@ export default function ChatbotPage() {
           })),
           user: user
             ? {
+                id: user.id,
                 name: user.name,
                 email: user.email,
               }
             : null,
+          fitbitData: isFitbitConnected ? mostRecentData : null,
+          responseMode: responseMode, // Add response mode
         }),
       })
 
@@ -188,6 +224,47 @@ export default function ChatbotPage() {
     }
   }
 
+  // Sync Fitbit data if connected
+  useEffect(() => {
+    if (isFitbitConnected && user) {
+      syncRecentData()
+    }
+  }, [isFitbitConnected, user, syncRecentData])
+
+  // Helper function to get suggested questions based on user data
+  const getSuggestedQuestions = () => {
+    const questions = [
+      "What causes menstrual cramps?",
+      "How can I manage PMS symptoms?",
+      "What are the different types of period products?",
+    ]
+
+    if (trackerData.hasData) {
+      if (trackerData.recentLog?.pain > 5) {
+        questions.push("What can help with severe period pain?")
+      }
+      if (trackerData.recentLog?.symptoms.includes("Bloating")) {
+        questions.push("How can I reduce bloating during my period?")
+      }
+      if (trackerData.cycleStats?.hasEnoughData) {
+        questions.push(`When is my next period likely to start?`)
+      }
+    }
+
+    if (isFitbitConnected && healthData.length > 0) {
+      questions.push("How does my sleep affect my menstrual cycle?")
+      questions.push("How should I adjust my exercise during different cycle phases?")
+    }
+
+    // Return 3 random questions
+    return questions.sort(() => 0.5 - Math.random()).slice(0, 3)
+  }
+
+  // Function to handle clicking a suggested question
+  const handleSuggestedQuestion = (question: string) => {
+    setInput(question)
+  }
+
   return (
     <div className="container px-4 py-12 md:py-16">
       <div className="flex flex-col items-center space-y-4 text-center mb-8">
@@ -228,6 +305,84 @@ export default function ChatbotPage() {
               </div>
             </AlertDescription>
           </Alert>
+        )}
+
+        {user && !trackerData.hasData && (
+          <Alert className="mb-6 border-flowwise-lightPink bg-flowwise-mint/20 dark:bg-flowwise-burgundy/10 dark:border-flowwise-burgundy/30">
+            <Calendar className="h-4 w-4 text-flowwise-burgundy dark:text-flowwise-pink" />
+            <AlertTitle className="text-flowwise-burgundy dark:text-flowwise-pink">
+              Track your symptoms for personalized insights
+            </AlertTitle>
+            <AlertDescription>
+              <p className="mb-2">
+                Start tracking your symptoms to get more personalized responses based on your menstrual cycle.
+              </p>
+              <div className="flex gap-2 mt-2">
+                <Link href="/tracker">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-flowwise-burgundy to-flowwise-red hover:opacity-90"
+                  >
+                    Go to Tracker
+                  </Button>
+                </Link>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {user && !isFitbitConnected && (
+          <Alert className="mb-6 border-flowwise-lightPink bg-flowwise-mint/20 dark:bg-flowwise-burgundy/10 dark:border-flowwise-burgundy/30">
+            <Activity className="h-4 w-4 text-flowwise-burgundy dark:text-flowwise-pink" />
+            <AlertTitle className="text-flowwise-burgundy dark:text-flowwise-pink">
+              Connect Fitbit for personalized insights
+            </AlertTitle>
+            <AlertDescription>
+              <p className="mb-2">
+                Connect your Fitbit account to get personalized insights based on your activity, sleep, and heart rate
+                data.
+              </p>
+              <div className="flex gap-2 mt-2">
+                <Link href="/integrations">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-flowwise-burgundy to-flowwise-red hover:opacity-90"
+                  >
+                    Connect Fitbit
+                  </Button>
+                </Link>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {user && trackerData.hasData && (
+          <div className="mb-6">
+            <Badge
+              variant="outline"
+              className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800 mb-2"
+            >
+              <Calendar className="h-3 w-3 mr-1" /> Tracker Data Available
+            </Badge>
+            <p className="text-xs text-muted-foreground">
+              Your tracked symptoms are being used to provide personalized insights. Last log:{" "}
+              {format(trackerData.recentLog.date, "MMMM d, yyyy")}
+            </p>
+          </div>
+        )}
+
+        {user && isFitbitConnected && healthData.length > 0 && (
+          <div className="mb-6">
+            <Badge
+              variant="outline"
+              className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800 mb-2"
+            >
+              <Activity className="h-3 w-3 mr-1" /> Fitbit Connected
+            </Badge>
+            <p className="text-xs text-muted-foreground">
+              Your Fitbit data is being used to provide personalized insights. Last synced: {healthData[0].date}
+            </p>
+          </div>
         )}
 
         <Card className="border-flowwise-lightPink/30 shadow-lg overflow-hidden">
@@ -327,7 +482,43 @@ export default function ChatbotPage() {
               <div ref={messagesEndRef} />
             </div>
           </CardContent>
-          <CardFooter className="p-4 border-t border-flowwise-lightPink/20">
+          <CardFooter className="p-4 border-t border-flowwise-lightPink/20 flex flex-col gap-4">
+            <div className="flex justify-between items-center w-full mb-2">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">Response mode:</span>
+                <div className="flex items-center space-x-1 bg-muted rounded-full p-1">
+                  <Button
+                    variant={responseMode === "concise" ? "secondary" : "ghost"}
+                    size="sm"
+                    className="rounded-full h-7 px-3 text-xs"
+                    onClick={() => setResponseMode("concise")}
+                  >
+                    Concise
+                  </Button>
+                  <Button
+                    variant={responseMode === "detailed" ? "secondary" : "ghost"}
+                    size="sm"
+                    className="rounded-full h-7 px-3 text-xs"
+                    onClick={() => setResponseMode("detailed")}
+                  >
+                    Detailed
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {getSuggestedQuestions().map((question, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSuggestedQuestion(question)}
+                  className="border-flowwise-lightPink/50 hover:bg-flowwise-pink/10 text-sm"
+                >
+                  {question}
+                </Button>
+              ))}
+            </div>
             <form onSubmit={handleSendMessage} className="flex w-full gap-2">
               <Input
                 placeholder="Type your question here..."
@@ -355,9 +546,4 @@ export default function ChatbotPage() {
       </div>
     </div>
   )
-}
-
-// Helper component for Link since we're using it in the Alert
-function Link({ href, children }: { href: string; children: React.ReactNode }) {
-  return <a href={href}>{children}</a>
 }

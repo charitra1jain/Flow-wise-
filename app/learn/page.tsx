@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowRight, BookOpen, Sparkles } from "lucide-react"
+import { ArrowRight, BookOpen, Sparkles, PlusCircle } from "lucide-react"
 
 export default function LearnPage() {
   return (
@@ -14,6 +14,14 @@ export default function LearnPage() {
         <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
           Choose your learning mode and explore our educational content
         </p>
+      </div>
+
+      <div className="flex justify-center mb-8">
+        <Link href="/create-content?type=educational">
+          <Button className="bg-gradient-to-r from-flowwise-burgundy to-flowwise-red hover:opacity-90 transition-opacity">
+            <PlusCircle className="mr-2 h-4 w-4" /> Create Educational Content
+          </Button>
+        </Link>
       </div>
 
       <Tabs defaultValue="adolescent" className="max-w-4xl mx-auto">

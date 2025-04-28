@@ -1,10 +1,18 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Activity, Smartphone, Check, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import FitbitIntegrationCard from "@/components/fitbit-integration-card"
+import { useAuth } from "@/lib/auth-context"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Info } from "lucide-react"
 
 export default function IntegrationsPage() {
+  const { user } = useAuth()
+
   return (
     <div className="container px-4 py-12 md:py-16">
       <div className="flex flex-col items-center space-y-4 text-center mb-8">
@@ -17,13 +25,37 @@ export default function IntegrationsPage() {
       </div>
 
       <div className="max-w-5xl mx-auto">
+        {!user && (
+          <Alert className="mb-6 border-flowwise-lightPink bg-flowwise-mint/20 dark:bg-flowwise-burgundy/10 dark:border-flowwise-burgundy/30">
+            <Info className="h-4 w-4 text-flowwise-burgundy dark:text-flowwise-pink" />
+            <AlertTitle className="text-flowwise-burgundy dark:text-flowwise-pink">
+              Sign in to connect integrations
+            </AlertTitle>
+            <AlertDescription>
+              <p className="mb-2">
+                Create an account or sign in to connect your fitness apps and get personalized insights.
+              </p>
+              <div className="flex gap-2 mt-2">
+                <Link href="/login">
+                  <Button variant="outline" size="sm" className="border-flowwise-pink hover:bg-flowwise-pink/10">
+                    Sign in
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-flowwise-burgundy to-flowwise-red hover:opacity-90"
+                  >
+                    Create account
+                  </Button>
+                </Link>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <IntegrationCard
-            title="Google Fit"
-            description="Sync your menstrual data with Google Fit for a complete health overview"
-            image="/placeholder.svg?height=100&width=100"
-            status="Connected"
-          />
+          <FitbitIntegrationCard />
           <IntegrationCard
             title="Apple Health"
             description="Integrate with Apple Health to track your menstrual cycle alongside other health metrics"
@@ -31,8 +63,8 @@ export default function IntegrationsPage() {
             status="Available"
           />
           <IntegrationCard
-            title="Fitbit"
-            description="Connect with Fitbit to correlate your cycle with activity, sleep, and more"
+            title="Google Fit"
+            description="Sync your menstrual data with Google Fit for a complete health overview"
             image="/placeholder.svg?height=100&width=100"
             status="Available"
           />
@@ -132,9 +164,9 @@ export default function IntegrationsPage() {
                   1
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-medium">Download the FlowWise Mobile App</h3>
+                  <h3 className="text-base font-medium">Sign in to your FlowWise account</h3>
                   <p className="text-sm text-muted-foreground">
-                    Our mobile app is available on iOS and Android and is required for fitness app integrations
+                    Create an account or sign in to access integration features
                   </p>
                 </div>
               </div>
@@ -143,9 +175,9 @@ export default function IntegrationsPage() {
                   2
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-medium">Go to Settings > Integrations</h3>
+                  <h3 className="text-base font-medium">Click "Connect" on your preferred fitness app</h3>
                   <p className="text-sm text-muted-foreground">
-                    Navigate to the Integrations section in your app settings
+                    Choose the fitness app you want to connect with FlowWise
                   </p>
                 </div>
               </div>
@@ -154,9 +186,9 @@ export default function IntegrationsPage() {
                   3
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-medium">Select Your Fitness App</h3>
+                  <h3 className="text-base font-medium">Authorize the Connection</h3>
                   <p className="text-sm text-muted-foreground">
-                    Choose the fitness app you want to connect with FlowWise
+                    Follow the prompts to authorize FlowWise to access your fitness data
                   </p>
                 </div>
               </div>
@@ -165,20 +197,22 @@ export default function IntegrationsPage() {
                   4
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-medium">Authorize the Connection</h3>
+                  <h3 className="text-base font-medium">Start Receiving Personalized Insights</h3>
                   <p className="text-sm text-muted-foreground">
-                    Follow the prompts to authorize FlowWise to access your fitness data
+                    Once connected, FlowWise will analyze your data and provide personalized recommendations
                   </p>
                 </div>
               </div>
             </div>
           </CardContent>
           <CardFooter>
-            <Link href="/download">
-              <Button className="bg-pink-600 hover:bg-pink-700">
-                Download the FlowWise App <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+            {!user && (
+              <Link href="/signup">
+                <Button className="bg-pink-600 hover:bg-pink-700">
+                  Create an Account <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            )}
           </CardFooter>
         </Card>
       </div>
