@@ -38,7 +38,7 @@ export default function ProductsPage() {
               title="Bamboo Pads"
               description="Biodegradable pads made from sustainable bamboo fibers"
               price="$12.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/bamboo-pads.jpg"
               badges={["Eco-Friendly", "Biodegradable"]}
               category="disposable"
             />
@@ -46,7 +46,7 @@ export default function ProductsPage() {
               title="Menstrual Cup"
               description="Reusable silicone cup that can last up to 10 years"
               price="$29.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/menstrual-cup.jpg"
               badges={["Reusable", "Zero Waste"]}
               category="reusable"
             />
@@ -70,7 +70,7 @@ export default function ProductsPage() {
               title="Reusable Cloth Pads"
               description="Washable cloth pads made from organic cotton"
               price="$18.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/cloth-pads.jpg"
               badges={["Reusable", "Organic"]}
               category="reusable"
             />
@@ -78,7 +78,7 @@ export default function ProductsPage() {
               title="Vending Machine Locator"
               description="Find FlowWise vending machines with eco-friendly products near you"
               price="Free"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/vending-machine.jpg"
               badges={["Service", "Accessibility"]}
               category="vending"
               isService={true}
@@ -92,7 +92,7 @@ export default function ProductsPage() {
               title="Menstrual Cup"
               description="Reusable silicone cup that can last up to 10 years"
               price="$29.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/menstrual-cup.jpg"
               badges={["Reusable", "Zero Waste"]}
               category="reusable"
             />
@@ -108,7 +108,7 @@ export default function ProductsPage() {
               title="Reusable Cloth Pads"
               description="Washable cloth pads made from organic cotton"
               price="$18.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/cloth-pads.jpg"
               badges={["Reusable", "Organic"]}
               category="reusable"
             />
@@ -121,7 +121,7 @@ export default function ProductsPage() {
               title="Bamboo Pads"
               description="Biodegradable pads made from sustainable bamboo fibers"
               price="$12.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/bamboo-pads.jpg"
               badges={["Eco-Friendly", "Biodegradable"]}
               category="disposable"
             />
@@ -148,8 +148,12 @@ export default function ProductsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video w-full bg-muted rounded-md flex items-center justify-center mb-6">
-                <p className="text-muted-foreground">Map visualization would appear here</p>
+              <div className="aspect-video w-full rounded-md flex items-center justify-center mb-6 overflow-hidden">
+                <img
+                  src="/images/products/vending-machine.jpg"
+                  alt="FlowWise Vending Machine"
+                  className="w-full h-full object-cover"
+                />
               </div>
 
               <div className="space-y-4">

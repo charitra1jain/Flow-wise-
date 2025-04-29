@@ -34,11 +34,11 @@ export default function BlogPage() {
             <TabsTrigger value="myths" className="text-base">
               Myth Busters
             </TabsTrigger>
-            <TabsTrigger value="stories" className="text-base">
-              Personal Stories
-            </TabsTrigger>
             <TabsTrigger value="education" className="text-base">
               Educational
+            </TabsTrigger>
+            <TabsTrigger value="inclusivity" className="text-base">
+              Inclusivity
             </TabsTrigger>
           </TabsList>
 
@@ -49,60 +49,55 @@ export default function BlogPage() {
                 description="Let's separate fact from fiction when it comes to menstruation"
                 author="Dr. Sarah Johnson"
                 date="Apr 15, 2023"
-                image="/placeholder.svg?height=200&width=400"
+                image="/images/blogs/debunking-period-myths.png"
                 category="myths"
                 comments={24}
                 likes={87}
+                url="https://goauntflow.com/blog/debunking-5-common-period-myths/"
               />
               <BlogCard
-                title="My Journey with Endometriosis"
-                description="A personal story of diagnosis, treatment, and living with endometriosis"
+                title="The History of the Tampon"
+                description="A journey through time exploring the evolution of this essential menstrual product"
                 author="Emily Parker"
                 date="Mar 22, 2023"
-                image="/placeholder.svg?height=200&width=400"
-                category="stories"
+                image="/images/blogs/history-of-tampon.png"
+                category="education"
                 comments={42}
                 likes={156}
+                url="https://goauntflow.com/blog/the-history-of-the-tampon/"
               />
               <BlogCard
-                title="Understanding Your Menstrual Cycle Phases"
+                title="4 Stages of the Menstrual Cycle"
                 description="A comprehensive guide to the four phases of your menstrual cycle"
                 author="Dr. Michael Chen"
                 date="Feb 10, 2023"
-                image="/placeholder.svg?height=200&width=400"
+                image="/images/blogs/menstrual-cycle-stages.png"
                 category="education"
                 comments={18}
                 likes={93}
+                url="https://goauntflow.com/blog/4-stages-of-the-menstrual-cycle/"
               />
               <BlogCard
-                title="The Truth About PMS: It's Not 'All in Your Head'"
-                description="Debunking the harmful myth that PMS symptoms are imaginary"
+                title="What Causes a Period?"
+                description="Understanding the biological processes behind menstruation"
                 author="Dr. Lisa Rodriguez"
                 date="Jan 28, 2023"
-                image="/placeholder.svg?height=200&width=400"
-                category="myths"
+                image="/images/blogs/what-causes-period.jpeg"
+                category="education"
                 comments={36}
                 likes={124}
+                url="https://goauntflow.com/blog/what-causes-a-period/"
               />
               <BlogCard
-                title="Switching to Sustainable Period Products Changed My Life"
-                description="My experience transitioning to eco-friendly menstrual products"
-                author="Sophia Williams"
-                date="Jan 15, 2023"
-                image="/placeholder.svg?height=200&width=400"
-                category="stories"
-                comments={29}
-                likes={112}
-              />
-              <BlogCard
-                title="Period Poverty: A Global Issue We Need to Address"
-                description="Understanding the challenges many face in accessing menstrual products"
-                author="Maya Thompson"
-                date="Dec 12, 2022"
-                image="/placeholder.svg?height=200&width=400"
-                category="education"
+                title="For Trans Awareness Week: Let's Talk About Period Inclusivity"
+                description="Exploring how we can make period conversations and products more inclusive"
+                author="Alex Thompson"
+                date="Nov 15, 2022"
+                image="/images/blogs/trans-awareness-week.png"
+                category="inclusivity"
                 comments={47}
                 likes={203}
+                url="https://goauntflow.com/blog/for-trans-awareness-week-lets-talk-about-period-inclusivity/"
               />
             </div>
           </TabsContent>
@@ -114,55 +109,11 @@ export default function BlogPage() {
                 description="Let's separate fact from fiction when it comes to menstruation"
                 author="Dr. Sarah Johnson"
                 date="Apr 15, 2023"
-                image="/placeholder.svg?height=200&width=400"
+                image="/images/blogs/debunking-period-myths.png"
                 category="myths"
                 comments={24}
                 likes={87}
-              />
-              <BlogCard
-                title="The Truth About PMS: It's Not 'All in Your Head'"
-                description="Debunking the harmful myth that PMS symptoms are imaginary"
-                author="Dr. Lisa Rodriguez"
-                date="Jan 28, 2023"
-                image="/placeholder.svg?height=200&width=400"
-                category="myths"
-                comments={36}
-                likes={124}
-              />
-              <BlogCard
-                title="No, You Can't Lose a Tampon Inside Your Body"
-                description="Addressing common fears and misconceptions about tampon use"
-                author="Dr. Rebecca Lee"
-                date="Nov 5, 2022"
-                image="/placeholder.svg?height=200&width=400"
-                category="myths"
-                comments={31}
-                likes={98}
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="stories" className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <BlogCard
-                title="My Journey with Endometriosis"
-                description="A personal story of diagnosis, treatment, and living with endometriosis"
-                author="Emily Parker"
-                date="Mar 22, 2023"
-                image="/placeholder.svg?height=200&width=400"
-                category="stories"
-                comments={42}
-                likes={156}
-              />
-              <BlogCard
-                title="Switching to Sustainable Period Products Changed My Life"
-                description="My experience transitioning to eco-friendly menstrual products"
-                author="Sophia Williams"
-                date="Jan 15, 2023"
-                image="/placeholder.svg?height=200&width=400"
-                category="stories"
-                comments={29}
-                likes={112}
+                url="https://goauntflow.com/blog/debunking-5-common-period-myths/"
               />
             </div>
           </TabsContent>
@@ -170,34 +121,53 @@ export default function BlogPage() {
           <TabsContent value="education" className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <BlogCard
-                title="Understanding Your Menstrual Cycle Phases"
+                title="The History of the Tampon"
+                description="A journey through time exploring the evolution of this essential menstrual product"
+                author="Emily Parker"
+                date="Mar 22, 2023"
+                image="/images/blogs/history-of-tampon.png"
+                category="education"
+                comments={42}
+                likes={156}
+                url="https://goauntflow.com/blog/the-history-of-the-tampon/"
+              />
+              <BlogCard
+                title="4 Stages of the Menstrual Cycle"
                 description="A comprehensive guide to the four phases of your menstrual cycle"
                 author="Dr. Michael Chen"
                 date="Feb 10, 2023"
-                image="/placeholder.svg?height=200&width=400"
+                image="/images/blogs/menstrual-cycle-stages.png"
                 category="education"
                 comments={18}
                 likes={93}
+                url="https://goauntflow.com/blog/4-stages-of-the-menstrual-cycle/"
               />
               <BlogCard
-                title="Period Poverty: A Global Issue We Need to Address"
-                description="Understanding the challenges many face in accessing menstrual products"
-                author="Maya Thompson"
-                date="Dec 12, 2022"
-                image="/placeholder.svg?height=200&width=400"
+                title="What Causes a Period?"
+                description="Understanding the biological processes behind menstruation"
+                author="Dr. Lisa Rodriguez"
+                date="Jan 28, 2023"
+                image="/images/blogs/what-causes-period.jpeg"
                 category="education"
+                comments={36}
+                likes={124}
+                url="https://goauntflow.com/blog/what-causes-a-period/"
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="inclusivity" className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <BlogCard
+                title="For Trans Awareness Week: Let's Talk About Period Inclusivity"
+                description="Exploring how we can make period conversations and products more inclusive"
+                author="Alex Thompson"
+                date="Nov 15, 2022"
+                image="/images/blogs/trans-awareness-week.png"
+                category="inclusivity"
                 comments={47}
                 likes={203}
-              />
-              <BlogCard
-                title="The Science Behind Period Pain"
-                description="What causes menstrual cramps and how to effectively manage them"
-                author="Dr. James Wilson"
-                date="Oct 18, 2022"
-                image="/placeholder.svg?height=200&width=400"
-                category="education"
-                comments={22}
-                likes={78}
+                url="https://goauntflow.com/blog/for-trans-awareness-week-lets-talk-about-period-inclusivity/"
               />
             </div>
           </TabsContent>
@@ -243,7 +213,9 @@ export default function BlogPage() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Button className="bg-pink-600 hover:bg-pink-700">Submit Your Story</Button>
+            <Link href="/create-content">
+              <Button className="bg-pink-600 hover:bg-pink-700">Submit Your Story</Button>
+            </Link>
           </CardFooter>
         </Card>
       </div>
@@ -260,6 +232,7 @@ function BlogCard({
   category,
   comments,
   likes,
+  url,
 }: {
   title: string
   description: string
@@ -269,13 +242,14 @@ function BlogCard({
   category: string
   comments: number
   likes: number
+  url: string
 }) {
   const categoryColors: Record<string, string> = {
     myths: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-300 dark:border-blue-800",
-    stories:
-      "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-300 dark:border-purple-800",
     education:
       "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800",
+    inclusivity:
+      "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-300 dark:border-purple-800",
   }
 
   return (
@@ -316,11 +290,11 @@ function BlogCard({
             <span>{likes}</span>
           </div>
         </div>
-        <Link href={`/blog/${title.toLowerCase().replace(/\s+/g, "-")}`}>
+        <a href={url} target="_blank" rel="noopener noreferrer">
           <Button variant="link" className="text-pink-600 dark:text-pink-400 p-0">
             Read More
           </Button>
-        </Link>
+        </a>
       </CardFooter>
     </Card>
   )

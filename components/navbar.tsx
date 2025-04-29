@@ -62,8 +62,8 @@ export default function Navbar() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-flowwise-burgundy to-flowwise-red flex items-center justify-center text-white font-bold">
-              F
+            <div className="w-8 h-8 relative">
+              <img src="/images/icons/flowwise-logo.png" alt="FlowWise Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-2xl font-bold gradient-text">FlowWise</span>
           </Link>

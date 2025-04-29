@@ -88,7 +88,7 @@ export const imagePaths = {
 
   // Icons and UI elements
   icons: {
-    logo: public/flowwise-logo.png.png,
+    logo: "/images/icons/flowwise-logo.png",
     favicon: "/images/icons/favicon.ico",
   },
 
