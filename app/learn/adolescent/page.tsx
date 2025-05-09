@@ -87,22 +87,34 @@ export default function AdolescentModePage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="border rounded-md p-4">
-                  <div className="aspect-video w-full bg-muted rounded-md flex items-center justify-center mb-2">
-                    <p className="text-muted-foreground">Comic preview</p>
+                  <div className="aspect-video w-full bg-muted rounded-md flex items-center justify-center mb-2 overflow-hidden">
+                    <img
+                      src="/images/comics/comic-1.jpeg"
+                      alt="Comic: How Babies Are Made"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <h3 className="font-medium">Episode 1: Maya's First Period</h3>
+                  <h3 className="font-medium">Episode 1: Understanding Reproduction</h3>
                 </div>
                 <div className="border rounded-md p-4">
-                  <div className="aspect-video w-full bg-muted rounded-md flex items-center justify-center mb-2">
-                    <p className="text-muted-foreground">Comic preview</p>
+                  <div className="aspect-video w-full bg-muted rounded-md flex items-center justify-center mb-2 overflow-hidden">
+                    <img
+                      src="/images/comics/comic-2.jpeg"
+                      alt="Comic: Puberty and Growth"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <h3 className="font-medium">Episode 2: Shopping for Supplies</h3>
+                  <h3 className="font-medium">Episode 2: Growing Up and Hormones</h3>
                 </div>
                 <div className="border rounded-md p-4">
-                  <div className="aspect-video w-full bg-muted rounded-md flex items-center justify-center mb-2">
-                    <p className="text-muted-foreground">Comic preview</p>
+                  <div className="aspect-video w-full bg-muted rounded-md flex items-center justify-center mb-2 overflow-hidden">
+                    <img
+                      src="/images/comics/comic-3.jpeg"
+                      alt="Comic: First Period Experience"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <h3 className="font-medium">Episode 3: Gym Class Worries</h3>
+                  <h3 className="font-medium">Episode 3: My First Period</h3>
                 </div>
               </div>
             </CardContent>

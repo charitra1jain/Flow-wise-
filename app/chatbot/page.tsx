@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { getMostRecentLog, getCycleStatistics } from "@/lib/tracker-service"
 import Link from "next/link"
 import { format } from "date-fns"
+import { ChatFeedback } from "@/components/chat-feedback"
 
 type Message = {
   id: string
@@ -42,6 +43,7 @@ export default function ChatbotPage() {
   const [typingText, setTypingText] = useState("")
   const [currentResponseIndex, setCurrentResponseIndex] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const { user } = useAuth()
   const { toast } = useToast()
   const { isConnected: isFitbitConnected } = useFitbit()
@@ -55,6 +57,7 @@ export default function ChatbotPage() {
     recentLog: null,
     cycleStats: null,
   })
+  const [userScrolled, setUserScrolled] = useState(false)
 
   // Add a new state for response mode
   const [responseMode, setResponseMode] = useState<"detailed" | "concise">("detailed")
@@ -94,20 +97,57 @@ export default function ChatbotPage() {
     }
   }, [messages, user])
 
-  // Scroll to bottom of messages
+  // Handle scroll events to detect user scrolling
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages, typingText])
+    const container = messagesContainerRef.current
+    if (!container) return
 
-  // Typing animation effect
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container
+      const isAtBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 10
+      setUserScrolled(!isAtBottom)
+    }
+
+    container.addEventListener("scroll", handleScroll)
+    return () => container.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // Scroll to bottom of messages only if user hasn't scrolled up
   useEffect(() => {
-    if (isTyping && currentResponseIndex < messages[messages.length - 1].content.length) {
-      const timer = setTimeout(() => {
-        setTypingText((prev) => prev + messages[messages.length - 1].content[currentResponseIndex])
-        setCurrentResponseIndex((prev) => prev + 1)
-      }, 15) // Speed of typing
+    if (!userScrolled && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages, typingText, userScrolled])
+
+  // Reset userScrolled when user sends a new message
+  useEffect(() => {
+    if (isLoading) {
+      setUserScrolled(false)
+    }
+  }, [isLoading])
+
+  // Typing animation effect - improved to be more stable and smoother
+  useEffect(() => {
+    if (!isTyping || !messages.length) return
+
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage.role !== "assistant") return
+
+    if (currentResponseIndex < lastMessage.content.length) {
+      const timer = setTimeout(
+        () => {
+          setTypingText(lastMessage.content.substring(0, currentResponseIndex + 1))
+          setCurrentResponseIndex((prev) => prev + 1)
+
+          // Randomize typing speed for more natural effect
+          const speed = Math.random() * 10 + 10 // Between 10-20ms
+          return () => clearTimeout(timer)
+        },
+        Math.random() * 10 + 10,
+      ) // Random speed between 10-20ms
+
       return () => clearTimeout(timer)
-    } else if (isTyping) {
+    } else {
       setIsTyping(false)
     }
   }, [isTyping, currentResponseIndex, messages])
@@ -134,7 +174,23 @@ export default function ChatbotPage() {
     })
   }
 
-  // Update the handleSendMessage function to include the response mode
+  // Format AI response to improve structure
+  const formatAIResponse = (text: string) => {
+    // Add paragraph breaks for better readability
+    let formattedText = text.replace(/\n\n/g, "\n\n")
+
+    // Ensure lists are properly formatted
+    formattedText = formattedText.replace(/(\d+\.\s.*?)(?=\n\d+\.|\n\n|$)/gs, "$1\n")
+
+    // Format headings
+    formattedText = formattedText.replace(/^(#+)\s+(.*?)$/gm, (_, hashes, title) => {
+      return `\n${hashes} ${title}\n`
+    })
+
+    return formattedText
+  }
+
+  // Update the handleSendMessage function to include the response mode and formatting
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -151,6 +207,7 @@ export default function ChatbotPage() {
     setMessages((prev) => [...prev, userMessage])
     setInput("")
     setIsLoading(true)
+    setUserScrolled(false) // Reset user scrolled state when sending a new message
 
     try {
       // Get most recent Fitbit data if connected
@@ -187,10 +244,13 @@ export default function ChatbotPage() {
         throw new Error(data.error || "Failed to get response from AI")
       }
 
+      // Format the response for better readability
+      const formattedResponse = formatAIResponse(data.response)
+
       // Add assistant response
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.response,
+        content: formattedResponse,
         role: "assistant",
         timestamp: new Date(),
       }
@@ -263,6 +323,32 @@ export default function ChatbotPage() {
   // Function to handle clicking a suggested question
   const handleSuggestedQuestion = (question: string) => {
     setInput(question)
+  }
+
+  // Helper function to format message content with proper line breaks
+  const formatMessageContent = (content: string) => {
+    return content.split("\n").map((line, i) => (
+      <span key={i}>
+        {line}
+        {i < content.split("\n").length - 1 && <br />}
+      </span>
+    ))
+  }
+
+  const handleFeedbackSubmit = (messageId: string, rating: number, feedback?: string) => {
+    console.log(`Feedback for message ${messageId}: ${rating}/5 stars`, feedback)
+    // In a real app, you would send this to your backend
+    toast({
+      title: "Feedback received",
+      description: `Thank you for rating this response ${rating}/5 stars.`,
+      variant: "success",
+    })
+  }
+
+  // Function to scroll to bottom manually
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    setUserScrolled(false)
   }
 
   return (
@@ -415,7 +501,7 @@ export default function ChatbotPage() {
               </DropdownMenu>
             </div>
           </CardHeader>
-          <CardContent className="h-[500px] overflow-y-auto p-0">
+          <CardContent className="h-[500px] overflow-y-auto p-0 relative" ref={messagesContainerRef}>
             <div className="flex flex-col p-4 space-y-4">
               {messages.map((message, index) => (
                 <div
@@ -440,22 +526,29 @@ export default function ChatbotPage() {
                     <div
                       className={`rounded-lg p-3 ${
                         message.role === "assistant"
-                          ? "bg-flowwise-mint/20 dark:bg-flowwise-burgundy/10 border border-flowwise-mint/30 dark:border-flowwise-burgundy/20"
+                          ? "bg-flowwise-mint/20 dark:bg-flowwise-burgundy/10 border border-flowwise-mint/30 dark:border-flowwise-burgundy/20 animate-fade-in"
                           : "bg-flowwise-lightPink/20 dark:bg-flowwise-pink/10 border border-flowwise-lightPink/30 dark:border-flowwise-pink/20 text-foreground"
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap">
-                        {isTyping && index === messages.length - 1 ? typingText : message.content}
+                      <div className="text-sm whitespace-pre-wrap">
+                        {isTyping && index === messages.length - 1
+                          ? formatMessageContent(typingText)
+                          : formatMessageContent(message.content)}
                         {isTyping && index === messages.length - 1 && (
                           <span className="inline-block w-1.5 h-4 ml-0.5 bg-flowwise-burgundy dark:bg-flowwise-pink animate-pulse"></span>
                         )}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {message.timestamp.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {message.timestamp.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                        {message.role === "assistant" && !isTyping && index === messages.length - 1 && (
+                          <ChatFeedback messageId={message.id} onFeedbackSubmit={handleFeedbackSubmit} />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -481,6 +574,31 @@ export default function ChatbotPage() {
               )}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Scroll to bottom button - only visible when user has scrolled up */}
+            {userScrolled && (
+              <Button
+                onClick={scrollToBottom}
+                className="absolute bottom-4 right-4 rounded-full shadow-lg bg-flowwise-burgundy hover:bg-flowwise-red"
+                size="icon"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-chevron-down"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+                <span className="sr-only">Scroll to bottom</span>
+              </Button>
+            )}
           </CardContent>
           <CardFooter className="p-4 border-t border-flowwise-lightPink/20 flex flex-col gap-4">
             <div className="flex justify-between items-center w-full mb-2">

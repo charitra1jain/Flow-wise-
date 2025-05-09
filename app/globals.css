@@ -102,32 +102,31 @@
     height: 8px;
     width: 8px;
     margin: 0 2px;
-    background-color: theme("colors.flowwise.pink");
+    background-color: currentColor;
     border-radius: 50%;
     display: inline-block;
-    animation: typing 1.5s infinite ease-in-out;
+    opacity: 0.6;
   }
 
   .typing-animation span:nth-child(1) {
-    animation-delay: -0.30s;
+    animation: bounce 1s infinite 0.2s;
   }
 
   .typing-animation span:nth-child(2) {
-    animation-delay: -0.15s;
+    animation: bounce 1s infinite 0.4s;
   }
 
   .typing-animation span:nth-child(3) {
-    animation-delay: 0s;
+    animation: bounce 1s infinite 0.6s;
   }
 
-  @keyframes typing {
+  @keyframes bounce {
     0%,
-    60%,
     100% {
       transform: translateY(0);
     }
-    30% {
-      transform: translateY(-6px);
+    50% {
+      transform: translateY(-5px);
     }
   }
 }
@@ -179,4 +178,17 @@
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-in-out;
 }

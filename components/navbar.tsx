@@ -40,7 +40,7 @@ export default function Navbar() {
     }
   }, [])
 
-  // Update the routes array to remove the Create link
+  // Update the routes array to remove the Data link
   const routes = [
     { name: "Home", path: "/" },
     { name: "Learn", path: "/learn" },
@@ -48,8 +48,8 @@ export default function Navbar() {
     { name: "Tracker", path: "/tracker" },
     { name: "Products", path: "/products" },
     { name: "Blog", path: "/blog" },
-    // Removed the Create link
     { name: "Test", path: "/test" },
+    // Removed the Data link
   ]
 
   return (
@@ -118,6 +118,12 @@ export default function Navbar() {
                   <DropdownMenuItem>
                     <User className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/profile">
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuItem onClick={logout}>
@@ -200,6 +206,12 @@ export default function Navbar() {
                       <Button variant="outline" className="w-full justify-start">
                         <User className="mr-2 h-4 w-4" />
                         Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/profile" onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" className="w-full justify-start">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
                       </Button>
                     </Link>
                     <Button

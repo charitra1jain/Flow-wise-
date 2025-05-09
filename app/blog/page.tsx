@@ -49,7 +49,7 @@ export default function BlogPage() {
                 description="Let's separate fact from fiction when it comes to menstruation"
                 author="Dr. Sarah Johnson"
                 date="Apr 15, 2023"
-                image="/images/blogs/debunking-period-myths.png"
+                image="/images/blogs/debunking-period-myths.webp"
                 category="myths"
                 comments={24}
                 likes={87}
@@ -60,7 +60,7 @@ export default function BlogPage() {
                 description="A journey through time exploring the evolution of this essential menstrual product"
                 author="Emily Parker"
                 date="Mar 22, 2023"
-                image="/images/blogs/history-of-tampon.png"
+                image="/images/blogs/history-of-tampon.webp"
                 category="education"
                 comments={42}
                 likes={156}
@@ -71,7 +71,7 @@ export default function BlogPage() {
                 description="A comprehensive guide to the four phases of your menstrual cycle"
                 author="Dr. Michael Chen"
                 date="Feb 10, 2023"
-                image="/images/blogs/menstrual-cycle-stages.png"
+                image="/images/blogs/menstrual-cycle-stages.webp"
                 category="education"
                 comments={18}
                 likes={93}
@@ -82,7 +82,7 @@ export default function BlogPage() {
                 description="Understanding the biological processes behind menstruation"
                 author="Dr. Lisa Rodriguez"
                 date="Jan 28, 2023"
-                image="/images/blogs/what-causes-period.jpeg"
+                image="/images/blogs/what-causes-period.webp"
                 category="education"
                 comments={36}
                 likes={124}
@@ -93,7 +93,7 @@ export default function BlogPage() {
                 description="Exploring how we can make period conversations and products more inclusive"
                 author="Alex Thompson"
                 date="Nov 15, 2022"
-                image="/images/blogs/trans-awareness-week.png"
+                image="/images/blogs/trans-awareness-week.webp"
                 category="inclusivity"
                 comments={47}
                 likes={203}
@@ -109,7 +109,7 @@ export default function BlogPage() {
                 description="Let's separate fact from fiction when it comes to menstruation"
                 author="Dr. Sarah Johnson"
                 date="Apr 15, 2023"
-                image="/images/blogs/debunking-period-myths.png"
+                image="/images/blogs/debunking-period-myths.webp"
                 category="myths"
                 comments={24}
                 likes={87}
@@ -125,7 +125,7 @@ export default function BlogPage() {
                 description="A journey through time exploring the evolution of this essential menstrual product"
                 author="Emily Parker"
                 date="Mar 22, 2023"
-                image="/images/blogs/history-of-tampon.png"
+                image="/images/blogs/history-of-tampon.webp"
                 category="education"
                 comments={42}
                 likes={156}
@@ -136,7 +136,7 @@ export default function BlogPage() {
                 description="A comprehensive guide to the four phases of your menstrual cycle"
                 author="Dr. Michael Chen"
                 date="Feb 10, 2023"
-                image="/images/blogs/menstrual-cycle-stages.png"
+                image="/images/blogs/menstrual-cycle-stages.webp"
                 category="education"
                 comments={18}
                 likes={93}
@@ -147,7 +147,7 @@ export default function BlogPage() {
                 description="Understanding the biological processes behind menstruation"
                 author="Dr. Lisa Rodriguez"
                 date="Jan 28, 2023"
-                image="/images/blogs/what-causes-period.jpeg"
+                image="/images/blogs/what-causes-period.webp"
                 category="education"
                 comments={36}
                 likes={124}
@@ -163,7 +163,7 @@ export default function BlogPage() {
                 description="Exploring how we can make period conversations and products more inclusive"
                 author="Alex Thompson"
                 date="Nov 15, 2022"
-                image="/images/blogs/trans-awareness-week.png"
+                image="/images/blogs/trans-awareness-week.webp"
                 category="inclusivity"
                 comments={47}
                 likes={203}
@@ -254,11 +254,12 @@ function BlogCard({
 
   return (
     <Card className="overflow-hidden border-pink-100 dark:border-pink-900/50 hover:shadow-md transition-shadow">
-      <div className="aspect-video w-full overflow-hidden">
+      <div className="aspect-video w-full overflow-hidden relative">
         <img
           src={image || "/placeholder.svg"}
           alt={title}
           className="w-full h-full object-cover transition-transform hover:scale-105"
+          loading="lazy"
         />
       </div>
       <CardHeader className="pb-2">

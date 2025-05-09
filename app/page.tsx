@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, MessageCircle, LineChart, Activity, ShoppingBag, BookOpen, CheckCircle } from "lucide-react"
 import ModeSelector from "@/components/mode-selector"
+import { SurveyHighlights } from "@/components/survey-highlights"
 
 export default function Home() {
   return (
@@ -46,11 +47,13 @@ export default function Home() {
 
               <Card className="overflow-hidden border-flowwise-lightPink/30 shadow-xl">
                 <CardContent className="p-0">
-                  <img
-                    src="https://images.unsplash.com/photo-1591522810850-58128c5fb089?q=80&w=2070&auto=format&fit=crop"
-                    alt="Diverse group of people learning together"
-                    className="w-full h-[300px] md:h-[400px] object-cover"
-                  />
+                  <div className="relative w-full overflow-hidden rounded-lg">
+                    <img
+                      src="/images/hero-image.jpeg"
+                      alt="Power to the Period - Diverse hands holding period products"
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -58,6 +61,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Rest of the home page content remains the same */}
       {/* Mode Selection */}
       <section className="w-full py-16 bg-white dark:bg-background relative">
         <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-background to-transparent"></div>
@@ -157,6 +161,16 @@ export default function Home() {
               role="Professional, 28"
               avatar="https://api.dicebear.com/7.x/micah/svg?seed=Priya"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Add this in a suitable section of the home page */}
+      <section className="py-12 bg-gray-50 dark:bg-gray-900">
+        <div className="container px-4">
+          <h2 className="text-3xl font-bold text-center mb-8">Survey Insights</h2>
+          <div className="max-w-3xl mx-auto">
+            <SurveyHighlights />
           </div>
         </div>
       </section>
