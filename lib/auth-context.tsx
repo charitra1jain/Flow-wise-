@@ -1,7 +1,6 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { useRouter } from "next/navigation"
 
 type User = {
   id: string
@@ -12,10 +11,10 @@ type User = {
 
 type AuthContextType = {
   user: User | null
-  isLoading: boolean
   login: (email: string, password: string) => Promise<void>
-  signup: (name: string, email: string, password: string) => Promise<void>
   logout: () => void
+  updateUser: (user: User) => void
+  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -23,94 +22,51 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
 
-  // Check if user is logged in on mount
   useEffect(() => {
-    if (typeof window === "undefined") return
-
-    const checkAuth = async () => {
-      try {
-        const storedUser = localStorage.getItem("flowwise_user")
-        if (storedUser) {
-          setUser(JSON.parse(storedUser))
-        }
-      } catch (error) {
-        console.error("Error checking authentication:", error)
-      } finally {
-        setIsLoading(false)
-      }
+    // Check if user is logged in from localStorage
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
     }
-
-    checkAuth()
+    setIsLoading(false)
   }, [])
 
-  // Mock login function
   const login = async (email: string, password: string) => {
-    if (typeof window === "undefined") return
-
     setIsLoading(true)
     try {
       // In a real app, this would be an API call
+      // For demo purposes, we'll just simulate a login
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Mock user data
-      const mockUser: User = {
-        id: "user_" + Math.random().toString(36).substr(2, 9),
-        name: email.split("@")[0],
+      const user = {
+        id: "user-1",
+        name: "Jane Doe",
         email,
-        avatar: `https://api.dicebear.com/7.x/micah/svg?seed=${email}`,
+        avatar: "/images/avatars/avatar-1.jpeg",
       }
 
-      setUser(mockUser)
-      localStorage.setItem("flowwise_user", JSON.stringify(mockUser))
-      router.push("/dashboard")
+      setUser(user)
+      localStorage.setItem("user", JSON.stringify(user))
     } catch (error) {
       console.error("Login error:", error)
-      throw new Error("Login failed")
+      throw error
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Mock signup function
-  const signup = async (name: string, email: string, password: string) => {
-    if (typeof window === "undefined") return
-
-    setIsLoading(true)
-    try {
-      // In a real app, this would be an API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Mock user data
-      const mockUser: User = {
-        id: "user_" + Math.random().toString(36).substr(2, 9),
-        name,
-        email,
-        avatar: `https://api.dicebear.com/7.x/micah/svg?seed=${email}`,
-      }
-
-      setUser(mockUser)
-      localStorage.setItem("flowwise_user", JSON.stringify(mockUser))
-      router.push("/dashboard")
-    } catch (error) {
-      console.error("Signup error:", error)
-      throw new Error("Signup failed")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Logout function
   const logout = () => {
-    if (typeof window === "undefined") return
-
     setUser(null)
-    localStorage.removeItem("flowwise_user")
-    router.push("/")
+    localStorage.removeItem("user")
   }
 
-  return <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>{children}</AuthContext.Provider>
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser)
+    localStorage.setItem("user", JSON.stringify(updatedUser))
+  }
+
+  return <AuthContext.Provider value={{ user, login, logout, updateUser, isLoading }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

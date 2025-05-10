@@ -27,12 +27,11 @@ import {
   PieChart as RechartsPieChart,
   Pie,
   Cell,
-  type TooltipProps,
 } from "recharts"
 
 // Define colors for charts
 const COLORS = ["#EC4899", "#F472B6", "#F9A8D4", "#FBC7E0", "#FBCFE8"]
-const SYMPTOM_COLORS = {
+const SYMPTOM_COLORS: Record<string, string> = {
   Bloating: "#EC4899",
   Headache: "#F472B6",
   Fatigue: "#F9A8D4",
@@ -45,6 +44,23 @@ const SYMPTOM_COLORS = {
   "Mood swings": "#7C3AED",
   Cramps: "#6D28D9",
   Backache: "#5B21B6",
+}
+
+// Custom tooltip component
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-gray-800 p-2 border rounded shadow-sm">
+        <p className="font-medium">{label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index} style={{ color: entry.color }}>
+            {entry.name}: {entry.value}
+          </p>
+        ))}
+      </div>
+    )
+  }
+  return null
 }
 
 export function PeriodTrackingGraphs() {
@@ -144,23 +160,6 @@ export function PeriodTrackingGraphs() {
       name,
       value,
     }))
-  }
-
-  // Custom tooltip for charts
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white dark:bg-gray-800 p-2 border rounded shadow-sm">
-          <p className="font-medium">{label}</p>
-          {payload.map((entry, index) => (
-            <p key={index} style={{ color: entry.color }}>
-              {entry.name}: {entry.value}
-            </p>
-          ))}
-        </div>
-      )
-    }
-    return null
   }
 
   // Handle month navigation
@@ -367,14 +366,7 @@ export function PeriodTrackingGraphs() {
                         <YAxis domain={[0, 10]} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Bar
-                          dataKey="flow"
-                          name="Flow Intensity"
-                          fill="#EC4899"
-                          radius={[4, 4, 0, 0]}
-                          barSize={30}
-                          label={{ position: "top", fill: "#EC4899", fontSize: 12 }}
-                        />
+                        <Bar dataKey="flow" name="Flow Intensity" fill="#EC4899" radius={[4, 4, 0, 0]} barSize={30} />
                       </BarChart>
                     </ResponsiveContainer>
                   ) : (

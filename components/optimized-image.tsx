@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getWebPVersion } from "@/lib/image-utils"
 
 interface OptimizedImageProps {
   src: string
@@ -27,9 +26,7 @@ export function OptimizedImage({
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    // Try to use WebP version if available
-    const webpSrc = getWebPVersion(src)
-    setImgSrc(webpSrc)
+    setImgSrc(src)
     setIsLoading(true)
     setError(false)
   }, [src])
@@ -41,13 +38,7 @@ export function OptimizedImage({
   const handleError = () => {
     setError(true)
     setIsLoading(false)
-    // Fall back to original source if WebP fails
-    if (imgSrc !== src) {
-      setImgSrc(src)
-    } else {
-      // If original source also fails, use fallback
-      setImgSrc(fallbackSrc)
-    }
+    setImgSrc(fallbackSrc)
   }
 
   return (
