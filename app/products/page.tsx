@@ -38,7 +38,7 @@ export default function ProductsPage() {
               title="Bamboo Pads"
               description="Biodegradable pads made from sustainable bamboo fibers"
               price="$12.99"
-              image="/images/products/bamboo-pads.jpg"
+              image="/images/products/bamboo-pads-new.png"
               badges={["Eco-Friendly", "Biodegradable"]}
               category="disposable"
             />
@@ -46,7 +46,7 @@ export default function ProductsPage() {
               title="Menstrual Cup"
               description="Reusable silicone cup that can last up to 10 years"
               price="$29.99"
-              image="/images/products/menstrual-cup.jpg"
+              image="/images/products/menstrual-cup-new.png"
               badges={["Reusable", "Zero Waste"]}
               category="reusable"
             />
@@ -54,7 +54,7 @@ export default function ProductsPage() {
               title="Period Underwear"
               description="Absorbent, leak-proof underwear for period protection"
               price="$34.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/period-underwear.png"
               badges={["Reusable", "Comfortable"]}
               category="reusable"
             />
@@ -62,7 +62,7 @@ export default function ProductsPage() {
               title="Organic Cotton Tampons"
               description="100% organic cotton tampons without harmful chemicals"
               price="$8.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/organic-tampons.webp"
               badges={["Organic", "Chemical-Free"]}
               category="disposable"
             />
@@ -78,7 +78,7 @@ export default function ProductsPage() {
               title="Vending Machine Locator"
               description="Find FlowWise vending machines with eco-friendly products near you"
               price="Free"
-              image="/images/products/vending-machine.jpg"
+              image="/images/products/vending-machine-new.jpeg"
               badges={["Service", "Accessibility"]}
               category="vending"
               isService={true}
@@ -92,7 +92,7 @@ export default function ProductsPage() {
               title="Menstrual Cup"
               description="Reusable silicone cup that can last up to 10 years"
               price="$29.99"
-              image="/images/products/menstrual-cup.jpg"
+              image="/images/products/menstrual-cup-new.png"
               badges={["Reusable", "Zero Waste"]}
               category="reusable"
             />
@@ -100,7 +100,7 @@ export default function ProductsPage() {
               title="Period Underwear"
               description="Absorbent, leak-proof underwear for period protection"
               price="$34.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/period-underwear.png"
               badges={["Reusable", "Comfortable"]}
               category="reusable"
             />
@@ -121,7 +121,7 @@ export default function ProductsPage() {
               title="Bamboo Pads"
               description="Biodegradable pads made from sustainable bamboo fibers"
               price="$12.99"
-              image="/images/products/bamboo-pads.jpg"
+              image="/images/products/bamboo-pads-new.png"
               badges={["Eco-Friendly", "Biodegradable"]}
               category="disposable"
             />
@@ -129,7 +129,7 @@ export default function ProductsPage() {
               title="Organic Cotton Tampons"
               description="100% organic cotton tampons without harmful chemicals"
               price="$8.99"
-              image="/placeholder.svg?height=200&width=300"
+              image="/images/products/organic-tampons.webp"
               badges={["Organic", "Chemical-Free"]}
               category="disposable"
             />
@@ -150,7 +150,7 @@ export default function ProductsPage() {
             <CardContent>
               <div className="aspect-video w-full rounded-md flex items-center justify-center mb-6 overflow-hidden">
                 <img
-                  src="/images/products/vending-machine.jpg"
+                  src="/images/products/vending-machine-new.jpeg"
                   alt="FlowWise Vending Machine"
                   className="w-full h-full object-cover"
                 />

@@ -6,7 +6,7 @@ import { useEffect } from "react"
 import { useChat } from "@/components/chat-provider"
 
 interface ChatEventListenerProps {
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
 export default function ChatEventListener({ children }: ChatEventListenerProps) {

@@ -10,13 +10,14 @@ import Footer from "@/components/footer"
 import { Toaster } from "@/components/ui/toaster"
 import { ChatProvider } from "@/components/chat-provider"
 import ChatEventListener from "@/components/chat-event-listener"
+import PopupChatbot from "@/components/popup-chatbot"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "FlowWise - Menstrual Health Education",
   description: "Educational platform for menstrual health and wellness",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -31,13 +32,14 @@ export default function RootLayout({
           <AuthProvider>
             <FitbitProvider>
               <ChatProvider>
+                <div className="flex min-h-screen flex-col">
+                  <Navbar />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
+                <PopupChatbot />
                 <ChatEventListener>
-                  <div className="flex min-h-screen flex-col">
-                    <Navbar />
-                    <main className="flex-1">{children}</main>
-                    <Footer />
-                    <Toaster />
-                  </div>
+                  <Toaster />
                 </ChatEventListener>
               </ChatProvider>
             </FitbitProvider>
