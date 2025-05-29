@@ -38,7 +38,7 @@ export function useChat() {
 
 // Hook to hide chat button on specific pages
 export function useChatVisibility(shouldShow: boolean) {
-  const { setShowChatButton } = useChat()
+  const { setShowChatButton } = useChat(true)
 
   useEffect(() => {
     setShowChatButton(shouldShow)

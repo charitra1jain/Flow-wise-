@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -47,8 +46,6 @@ export default function PopupChatbot() {
     "How can I manage PMS symptoms?",
     "What are the different types of period products?",
   ])
-
-  // Add a new state for response mode
   const [responseMode, setResponseMode] = useState<"detailed" | "concise">("concise")
 
   // Load chat history when user logs in
@@ -76,7 +73,6 @@ export default function PopupChatbot() {
     if (isOpen) {
       const pendingQuestion = localStorage.getItem("flowwise_pending_question")
       if (pendingQuestion) {
-        // Set the input and clear the pending question
         setInput(pendingQuestion)
         localStorage.removeItem("flowwise_pending_question")
       }
@@ -99,13 +95,12 @@ export default function PopupChatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Update the handleSendMessage function to include the response mode
+  // Handle send message
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!input.trim()) return
 
-    // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
       content: input,
@@ -118,10 +113,8 @@ export default function PopupChatbot() {
     setIsLoading(true)
 
     try {
-      // Get most recent Fitbit data if connected
       const mostRecentData = healthData.length > 0 ? healthData[0] : null
 
-      // Call the Gemini API through our server action
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -141,7 +134,7 @@ export default function PopupChatbot() {
               }
             : null,
           fitbitData: isFitbitConnected ? mostRecentData : null,
-          responseMode: responseMode, // Add response mode
+          responseMode: responseMode,
         }),
       })
 
@@ -152,7 +145,6 @@ export default function PopupChatbot() {
         throw new Error(data.error || "Failed to get response from AI")
       }
 
-      // Add assistant response
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: data.response,
@@ -170,7 +162,6 @@ export default function PopupChatbot() {
         variant: "destructive",
       })
 
-      // Add error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "I'm sorry, I encountered an error connecting to the AI service. Please try again later.",
@@ -189,19 +180,49 @@ export default function PopupChatbot() {
     setInput(question)
   }
 
-  // Close chat when clicking outside
+  // Improved click outside detection with useCallback
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
+      if (!isOpen) return
+
+      const target = event.target as Element
+
+      // Check if the click is inside the chat container
+      if (chatContainerRef.current?.contains(target)) {
+        return // Don't close if clicking inside
+      }
+
+      // Check if clicking on the toggle button (has MessageCircle icon)
+      const toggleButton = document.querySelector("[data-chat-toggle]")
+      if (toggleButton?.contains(target)) {
+        return // Don't close if clicking the toggle button
+      }
+
+      // Close the chat
+      toggleChat()
+    },
+    [isOpen, toggleChat],
+  )
+
+  // Set up click outside listener
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isOpen && chatContainerRef.current && !chatContainerRef.current.contains(event.target as Node)) {
-        toggleChat()
+    if (isOpen) {
+      // Use a small delay to prevent immediate closing
+      const timer = setTimeout(() => {
+        document.addEventListener("mousedown", handleClickOutside)
+      }, 100)
+
+      return () => {
+        clearTimeout(timer)
+        document.removeEventListener("mousedown", handleClickOutside)
       }
     }
+  }, [isOpen, handleClickOutside])
 
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isOpen, toggleChat])
+  // Prevent all events from bubbling up from the chat container
+  const handleContainerInteraction = (e: React.MouseEvent | React.KeyboardEvent | React.FormEvent) => {
+    e.stopPropagation()
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -209,6 +230,9 @@ export default function PopupChatbot() {
         <div
           ref={chatContainerRef}
           className="w-80 sm:w-96 h-[500px] flex flex-col bg-white dark:bg-gray-950 rounded-lg shadow-lg border border-pink-100 dark:border-pink-900/50 animate-in slide-in-from-bottom-5 duration-300"
+          onMouseDown={handleContainerInteraction}
+          onClick={handleContainerInteraction}
+          onKeyDown={handleContainerInteraction}
         >
           <CardHeader className="py-3 px-4 border-b border-pink-100 dark:border-pink-900/50 flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
@@ -339,6 +363,7 @@ export default function PopupChatbot() {
       ) : (
         <Button
           onClick={toggleChat}
+          data-chat-toggle= "false"
           className="h-14 w-14 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg flex items-center justify-center"
         >
           <MessageCircle className="h-6 w-6" />
